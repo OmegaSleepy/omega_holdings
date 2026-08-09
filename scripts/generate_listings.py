@@ -120,12 +120,20 @@ def safe_filename(name: str) -> str:
 def build_page(listing_name: str, metadata: dict, image_paths: list[Path], template: str) -> str:
     formatted_name = listing_name.replace('_', ' ')
     page_title = f'{formatted_name} — ОМЕГА Холдингс'
-    summary = metadata.get('description') or metadata.get('details', '').split('\n')[0].strip() or f'{formatted_name} — луксозна резиденция от колекцията на ОМЕГА Холдингс.'
-    summary = summary[:180]
+
+    price_display = metadata.get('price', '—')
+    raw_size = metadata.get('size', '—')
+    if raw_size and not raw_size.lower().endswith('m2') and not raw_size.lower().endswith('m²'):
+        size_display = f'{raw_size} m2'
+    else:
+        size_display = raw_size
+    address_display = metadata.get('address', 'Paris, France')
+    summary = f'{size_display} | {price_display} | {address_display}'
 
     images = image_paths if image_paths else []
     if images:
-        primary_image = './' + str(images[0].relative_to(root)).replace('\\', '/')
+        main_image = next((img for img in images if img.name.lower() == 'main.png'), images[0])
+        primary_image = './' + str(main_image.relative_to(root)).replace('\\', '/')
     else:
         primary_image = './img/hero.png'
 
@@ -134,10 +142,7 @@ def build_page(listing_name: str, metadata: dict, image_paths: list[Path], templ
         image_rel_paths = [primary_image]
 
     details_html = format_details_html(metadata.get('details', ''))
-    price_display = metadata.get('price', '—')
-    size_display = metadata.get('size', '—')
     year_display = metadata.get('year', '—')
-    address_display = metadata.get('address', 'Paris, France')
     image_caption = Path(image_rel_paths[0]).stem.replace('_', ' ')
     page_url = f'./{safe_filename(listing_name)}.html'
 

@@ -177,7 +177,7 @@ async function loadImages(name) {
     element.setAttribute('content', content);
   }
 
-  const summaryText = info.details || `${formattedTitle} — луксозна резиденция с площ ${rawSize} m² и цена от ${formatPrice(info.price)}.`;
+  const summaryText = info.description || info.details || `${formattedTitle} — луксозна резиденция с площ ${rawSize} m² и цена от ${formatPrice(info.price)}.`;
   setMetaProperty('name="description"', summaryText);
   setMetaProperty('property="og:title"', `${formattedTitle} — ОМЕГА Холдингс`);
   setMetaProperty('name="twitter:title"', `${formattedTitle} — ОМЕГА Холдингс`);
@@ -186,7 +186,13 @@ async function loadImages(name) {
   setMetaProperty('property="og:url"', window.location.href);
 
   // Image Carousel setup
-  const imgs = embedded?.images && embedded.images.length ? embedded.images : await loadImages(name);
+  let imgs = embedded?.images && embedded.images.length ? embedded.images : await loadImages(name);
+  if (embedded?.images && embedded.images.length) {
+    const mainIndex = imgs.findIndex((src) => src.toLowerCase().endsWith('/main.png') || src.toLowerCase().endsWith('\\main.png'));
+    if (mainIndex > 0) {
+      imgs = [imgs[mainIndex], ...imgs.slice(0, mainIndex), ...imgs.slice(mainIndex + 1)];
+    }
+  }
   if (imgs.length > 0) {
     const imageUrl = imgs[0];
     setMetaProperty('property="og:image"', imageUrl);
