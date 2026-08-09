@@ -1,0 +1,5 @@
+pictures/front_door.png
+pictures/main.png
+pictures/picture1.png
+pictures/picture2.png
+pictures/side_view.png

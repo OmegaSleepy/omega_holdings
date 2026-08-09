@@ -1,2 +1,0 @@
-pictures/main.png
-pictures/room1.png
