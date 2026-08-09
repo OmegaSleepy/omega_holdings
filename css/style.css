@@ -820,3 +820,36 @@ body {
   text-overflow: ellipsis;
   text-transform: uppercase;
 }
+
+/* Contact Section inside Specs Panel */
+.contact-section {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px double var(--border-gold);
+}
+
+.contact-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  margin-top: 0;
+  margin-bottom: 0.8rem;
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.contact-detail {
+  font-size: 0.85rem;
+  color: var(--ink-muted);
+  margin: 0 0 0.5rem 0;
+  line-height: 1.5;
+}
+
+.contact-detail strong {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--accent-gold-dark);
+  display: block;
+}
