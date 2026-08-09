@@ -1,0 +1,6 @@
+pictures/entrance.png
+pictures/main.png
+pictures/outside.png
+pictures/picture1.png
+pictures/picture2.png
+pictures/picture3.png

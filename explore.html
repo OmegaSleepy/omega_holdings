@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Разгледай офертите — ОМЕГА Холдингс</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="top-bar">
+    <span>Публична Колекция</span>
+    <span class="location">Комуна на Равенството</span>
+  </div>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <span class="subtitle">ОСН. Равенство</span>
+        <h1>ОМЕГА Холдингс</h1>
+      </div>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="explore.html" class="active">Разгледай офертите</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container explore-container">
+    <section class="explore-header">
+      <span class="eyebrow">Отбрани оферти</span>
+      <h2>ОМЕГА Холдингс</h2>
+      <div class="divider-ornament"><span>❖</span></div>
+    </section>
+
+    <!-- Filter Console -->
+    <section class="filter-panel">
+      <div class="filter-grid">
+        <div class="filter-group">
+          <label>Площ (m²)</label>
+          <div class="input-range">
+            <input id="filter-size-min" type="number" placeholder="Min">
+            <span class="range-sep">—</span>
+            <input id="filter-size-max" type="number" placeholder="Max">
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label>Оценка (€)</label>
+          <div class="input-range">
+            <input id="filter-price-min" type="number" placeholder="Min">
+            <span class="range-sep">—</span>
+            <input id="filter-price-max" type="number" placeholder="Max">
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label>Година на строежа</label>
+          <div class="input-range">
+            <input id="filter-year-min" type="number" placeholder="Min">
+            <span class="range-sep">—</span>
+            <input id="filter-year-max" type="number" placeholder="Max">
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-actions">
+        <button id="apply-filters" class="btn btn-primary">Приложи Филтри</button>
+        <button id="clear-filters" class="btn btn-secondary">Изчисти Филтри</button>
+      </div>
+    </section>
+
+    <!-- Sort & Display Controls -->
+    <section class="controls-panel">
+      <div class="control-group">
+        <label for="sort">Сортирай колекцията</label>
+        <select id="sort" class="styled-select">
+          <option value="price_desc">Цена: От Високо към Ниско</option>
+          <option value="price_asc">Цена: От Ниско към Високо</option>
+          <option value="size_desc">Размер: От Високо към Ниско</option>
+          <option value="size_asc">Размер: От Ниско към Високо</option>
+          <option value="year_desc">Година: Най-новите първо</option>
+          <option value="year_asc">Година: Най-старите първо</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="page-size">Обяви на страница</label>
+        <select id="page-size" class="styled-select">
+          <option value="6">6 Резиденции</option>
+          <option value="12">12 Резиденции</option>
+          <option value="24">24 Резиденции</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Listings & Pagination -->
+    <div id="listings" class="listings-grid"></div>
+    <div id="pagination" class="pagination"></div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p class="footer-title">ОМЕГА Холдингс</p>
+      <p class="copyright">© ОМЕГА Холдингс — Фиктивено Архитектурно Портфолио</p>
+    </div>
+  </footer>
+
+  <script src="js/explore.js"></script>
+</body>
+</html>

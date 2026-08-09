@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Резиденция — ОМЕГА Холдингс</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="top-bar">
+    <span>Публична Колекция</span>
+    <span class="location">Комуна на Равенството</span>
+  </div>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <span class="subtitle">ОСН. Равенство</span>
+        <h1>ОМЕГА Холдингс</h1>
+      </div>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="explore.html" class="active">Разгледай офертите</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container listing-page">
+    <div class="navigation-bar">
+      <a id="back" class="back-link" href="explore.html">← Обратно към Портфолиото</a>
+    </div>
+
+    <!-- Error State -->
+    <div id="listing-error" class="error-message" style="display:none;">
+      <div class="gold-crest">⚜</div>
+      <h2>Резиденцията не е намерена</h2>
+      <p>Запрашаният архитектурен профил не можа да бъде намерен в нашите архиви. Моля, върнете се към избора на портфолио.</p>
+      <a class="btn btn-primary" href="explore.html">Разгледай Портфолиото</a>
+    </div>
+
+    <!-- Content Layout -->
+    <div id="listing-content" class="listing-layout">
+      
+      <header class="listing-header">
+        <span class="eyebrow" id="listing-eyebrow">Имот ОМЕГА</span>
+        <h2 id="listing-title">Зареждане на Резиденция...</h2>
+        <div class="divider-ornament"><span>❖</span></div>
+      </header>
+
+      <!-- Carousel -->
+      <section id="carousel" class="carousel">
+        <button id="prev" class="carousel-btn" aria-label="Предишно изображение">‹</button>
+          <div class="carousel-image-wrap">
+            <img id="carousel-image" src="" alt="Архитектурен изглед">
+            <!-- ADD THIS LINE BELOW -->
+            <div id="carousel-caption" class="carousel-caption"></div>
+            <div id="carousel-counter" class="carousel-counter">1 / 1</div>
+          </div>
+        <button id="next" class="carousel-btn" aria-label="Следващо изображение">›</button>
+      </section>
+
+      <!-- Specifications & Details Grid -->
+      <div class="listing-details-grid">
+        <aside class="specs-panel">
+          <h3 class="panel-title">Архитектурни Спецификации</h3>
+          <table class="info-table">
+            <tbody>
+              <tr>
+                <td><strong>Оценка</strong></td>
+                <td id="listing-price">—</td>
+              </tr>
+              <tr>
+                <td><strong>Площ</strong></td>
+                <td id="listing-size">—</td>
+              </tr>
+              <tr>
+                <td><strong>Година на строежа</strong></td>
+                <td id="listing-year">—</td>
+              </tr>
+              <tr>
+                <td><strong>Адрес</strong></td>
+                <td id="listing-address">—</td>
+              </tr>
+            </tbody>
+          </table>
+        </aside>
+
+        <article class="description-panel">
+          <h3 class="panel-title">Преглед на Резиденцията</h3>
+          <div id="listing-details" class="details"></div>
+        </article>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p class="footer-title">ОМЕГА Холдингс</p>
+      <p class="copyright">© ОМЕГА Холдингс — Фиктивено Архитектурно Портфолио</p>
+    </div>
+  </footer>
+
+  <script src="js/listing.js"></script>
+</body>
+</html>
