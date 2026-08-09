@@ -141,7 +141,7 @@ async function loadImages(name) {
   // Populate metadata fields
   const formattedTitle = name.replace(/_/g, ' ');
   document.getElementById('listing-title').textContent = formattedTitle;
-  document.title = `${formattedTitle} — Maison Haussmann`;
+  document.title = `${formattedTitle} — ОМЕГА Холдингс`;
 
   const rawSize = info.size || info['size_m2'] || '—';
   document.getElementById('listing-size').textContent = rawSize !== '—' && !rawSize.includes('m²') ? `${rawSize} m²` : rawSize;
@@ -150,8 +150,34 @@ async function loadImages(name) {
   document.getElementById('listing-address').textContent = info.address || 'Paris, France';
   document.getElementById('listing-details').textContent = info.details || 'Detailed description forthcoming for this private residence.';
 
+  function setMetaProperty(name, content) {
+    if (!content) return;
+    let element = document.querySelector(`meta[${name}]`);
+    if (!element) {
+      element = document.createElement('meta');
+      const [attr, key] = name.split('=');
+      element.setAttribute(attr, key.replace(/^"|"$/g, ''));
+      document.head.appendChild(element);
+    }
+    element.setAttribute('content', content);
+  }
+
+  const summaryText = info.details || `${formattedTitle} — луксозна резиденция с площ ${rawSize} m² и цена от ${formatPrice(info.price)}.`;
+  setMetaProperty('name="description"', summaryText);
+  setMetaProperty('property="og:title"', `${formattedTitle} — ОМЕГА Холдингс`);
+  setMetaProperty('name="twitter:title"', `${formattedTitle} — ОМЕГА Холдингс`);
+  setMetaProperty('property="og:description"', summaryText);
+  setMetaProperty('name="twitter:description"', summaryText);
+  setMetaProperty('property="og:url"', window.location.href);
+
   // Image Carousel setup
   const imgs = await loadImages(name);
+  if (imgs.length > 0) {
+    const imageUrl = imgs[0];
+    setMetaProperty('property="og:image"', imageUrl);
+    setMetaProperty('property="og:image:alt"', `${formattedTitle} — основно изображение на резиденцията`);
+    setMetaProperty('name="twitter:image"', imageUrl);
+  }
   const prevBtn = document.getElementById('prev');
   const nextBtn = document.getElementById('next');
   const imgEl = document.getElementById('carousel-image');
