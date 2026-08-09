@@ -163,14 +163,17 @@ async function loadImages(name) {
   document.getElementById('listing-price').textContent = formatPrice(info.price);
   document.getElementById('listing-year').textContent = info.year || info.year_of_building || '—';
   document.getElementById('listing-address').textContent = info.address || 'Paris, France';
+  if (info.details_html) {
+  document.getElementById('listing-details').innerHTML = info.details_html;
+} else {
   document.getElementById('listing-details').textContent = info.details || 'Detailed description forthcoming for this private residence.';
-
-  function setMetaProperty(name, content) {
+}
+  function setMetaProperty(nameAttr, content) {
     if (!content) return;
-    let element = document.querySelector(`meta[${name}]`);
+    let element = document.querySelector(`meta[${nameAttr}]`);
     if (!element) {
       element = document.createElement('meta');
-      const [attr, key] = name.split('=');
+      const [attr, key] = nameAttr.split('=');
       element.setAttribute(attr, key.replace(/^"|"$/g, ''));
       document.head.appendChild(element);
     }
@@ -193,6 +196,7 @@ async function loadImages(name) {
       imgs = [imgs[mainIndex], ...imgs.slice(0, mainIndex), ...imgs.slice(mainIndex + 1)];
     }
   }
+
   if (imgs.length > 0) {
     const imageUrl = imgs[0];
     setMetaProperty('property="og:image"', imageUrl);
@@ -200,46 +204,6 @@ async function loadImages(name) {
     setMetaProperty('name="twitter:image"', imageUrl);
   }
 
-  // Populate metadata fields
-  const formattedTitle = name.replace(/_/g, ' ');
-  document.getElementById('listing-title').textContent = formattedTitle;
-  document.title = `${formattedTitle} — ОМЕГА Холдингс`;
-
-  const rawSize = info.size || info['size_m2'] || '—';
-  document.getElementById('listing-size').textContent = rawSize !== '—' && !rawSize.includes('m²') ? `${rawSize} m²` : rawSize;
-  document.getElementById('listing-price').textContent = formatPrice(info.price);
-  document.getElementById('listing-year').textContent = info.year || info.year_of_building || '—';
-  document.getElementById('listing-address').textContent = info.address || 'Paris, France';
-  document.getElementById('listing-details').textContent = info.details || 'Detailed description forthcoming for this private residence.';
-
-  function setMetaProperty(name, content) {
-    if (!content) return;
-    let element = document.querySelector(`meta[${name}]`);
-    if (!element) {
-      element = document.createElement('meta');
-      const [attr, key] = name.split('=');
-      element.setAttribute(attr, key.replace(/^"|"$/g, ''));
-      document.head.appendChild(element);
-    }
-    element.setAttribute('content', content);
-  }
-
-  const summaryText = info.details || `${formattedTitle} — луксозна резиденция с площ ${rawSize} m² и цена от ${formatPrice(info.price)}.`;
-  setMetaProperty('name="description"', summaryText);
-  setMetaProperty('property="og:title"', `${formattedTitle} — ОМЕГА Холдингс`);
-  setMetaProperty('name="twitter:title"', `${formattedTitle} — ОМЕГА Холдингс`);
-  setMetaProperty('property="og:description"', summaryText);
-  setMetaProperty('name="twitter:description"', summaryText);
-  setMetaProperty('property="og:url"', window.location.href);
-
-  // Image Carousel setup
-  const imgs = await loadImages(name);
-  if (imgs.length > 0) {
-    const imageUrl = imgs[0];
-    setMetaProperty('property="og:image"', imageUrl);
-    setMetaProperty('property="og:image:alt"', `${formattedTitle} — основно изображение на резиденцията`);
-    setMetaProperty('name="twitter:image"', imageUrl);
-  }
   const prevBtn = document.getElementById('prev');
   const nextBtn = document.getElementById('next');
   const imgEl = document.getElementById('carousel-image');
@@ -256,19 +220,18 @@ async function loadImages(name) {
     imgEl.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(fallbackSvg)}`;
     counterEl.style.display = 'none';
     if (captionEl) captionEl.style.display = 'none';
-    prevBtn.disabled = true;
-    nextBtn.disabled = true;
+    if (prevBtn) prevBtn.disabled = true;
+    if (nextBtn) nextBtn.disabled = true;
     return;
   }
 
   let currentIndex = 0;
-  // Helper function to extract a clean display name from image file path
+
   function getImageName(src) {
     const filename = src.split('/').pop().split('?')[0];
     return filename.replace(/\.[^/.]+$/, '');
   }
 
-  // Update carousel function
   function updateCarousel() {
     const currentSrc = imgs[currentIndex];
     imgEl.src = currentSrc;
@@ -282,10 +245,11 @@ async function loadImages(name) {
     if (fullscreenCaption) {
       fullscreenCaption.textContent = getImageName(currentSrc);
     }
-    prevBtn.disabled = imgs.length <= 1;
-    nextBtn.disabled = imgs.length <= 1;
+    if (prevBtn) prevBtn.disabled = imgs.length <= 1;
+    if (nextBtn) nextBtn.disabled = imgs.length <= 1;
   }
 
+  // Open Fullscreen on Image Click
   if (imgEl && fullscreenOverlay && fullscreenImage) {
     imgEl.style.cursor = 'zoom-in';
     imgEl.addEventListener('click', () => {
@@ -298,6 +262,7 @@ async function loadImages(name) {
     });
   }
 
+  // Close Fullscreen Logic
   function closeFullscreen() {
     if (!fullscreenOverlay) return;
     fullscreenOverlay.classList.remove('active');
@@ -322,15 +287,20 @@ async function loadImages(name) {
     }
   });
 
-  prevBtn.addEventListener('click', () => {
-    currentIndex = (currentIndex - 1 + imgs.length) % imgs.length;
-    updateCarousel();
-  });
+  // Controls for prev / next
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => {
+      currentIndex = (currentIndex - 1 + imgs.length) % imgs.length;
+      updateCarousel();
+    });
+  }
 
-  nextBtn.addEventListener('click', () => {
-    currentIndex = (currentIndex + 1) % imgs.length;
-    updateCarousel();
-  });
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      currentIndex = (currentIndex + 1) % imgs.length;
+      updateCarousel();
+    });
+  }
 
   updateCarousel();
 })();

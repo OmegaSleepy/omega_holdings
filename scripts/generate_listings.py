@@ -49,29 +49,29 @@ def parse_listing_metadata(contents: str) -> dict:
 
 
 def natural_sort_key(value: str):
-    parts = re.split(r'(\d+)', value)
+    parts = re.split(r'(\d+)', str(value))
     return [int(part) if part.isdigit() else part.lower() for part in parts]
 
 
-def find_images(listing_dir: Path) -> list[str]:
+def find_images(listing_dir: Path) -> list[Path]:
     picture_file = listing_dir / 'pictures.txt'
     if picture_file.exists():
         raw = picture_file.read_text(encoding='utf-8')
-        entries = [line.strip() for line in raw.splitlines() if line.strip() and not line.strip().startswith('#')]
+        entries = [line.strip().lstrip('./') for line in raw.splitlines() if line.strip() and not line.strip().startswith('#')]
         images = []
         for entry in entries:
-            candidate = listing_dir / entry
-            if candidate.exists():
+            candidate = (listing_dir / entry).resolve()
+            if candidate.exists() and candidate.is_file():
                 images.append(candidate)
         if images:
-            return sorted(images, key=lambda p: natural_sort_key(str(p)))
+            return sorted(images, key=lambda p: natural_sort_key(p.name))
 
     pictures_dir = listing_dir / 'pictures'
     if not pictures_dir.exists() or not pictures_dir.is_dir():
         return []
 
     images = [p for p in pictures_dir.rglob('*') if p.is_file() and p.suffix.lower() in {'.png', '.jpg', '.jpeg', '.webp', '.gif', '.avif', '.svg'}]
-    return sorted(images, key=lambda p: natural_sort_key(str(p.name)))
+    return sorted(images, key=lambda p: natural_sort_key(p.name))
 
 
 def format_details_html(details: str) -> str:
@@ -85,7 +85,7 @@ def format_details_html(details: str) -> str:
     def flush_paragraph():
         nonlocal paragraph_lines
         if paragraph_lines:
-            html_parts.append('<p>{}</p>'.format(escape(' '.join(paragraph_lines))))
+            html_parts.append(f'<p>{escape(" ".join(paragraph_lines))}</p>')
             paragraph_lines = []
 
     def flush_list():
@@ -117,16 +117,23 @@ def safe_filename(name: str) -> str:
     return sanitized or 'listing'
 
 
+def replace_element_content(html: str, element_id: str, new_content: str) -> str:
+    """Safely replace inner content of an element matching id="..." using regex."""
+    pattern = rf'(<[^>]+id=["\']{element_id}["\'][^>]*>)(.*?)(</[^>]+>)'
+    return re.sub(pattern, rf'\g<1>{new_content}\g<3>', html, flags=re.DOTALL)
+
+
 def build_page(listing_name: str, metadata: dict, image_paths: list[Path], template: str) -> str:
     formatted_name = listing_name.replace('_', ' ')
     page_title = f'{formatted_name} — ОМЕГА Холдингс'
 
     price_display = metadata.get('price', '—')
     raw_size = metadata.get('size', '—')
-    if raw_size and not raw_size.lower().endswith('m2') and not raw_size.lower().endswith('m²'):
-        size_display = f'{raw_size} m2'
+    if raw_size and raw_size != '—' and not raw_size.lower().endswith('m2') and not raw_size.lower().endswith('m²'):
+        size_display = f'{raw_size} m²'
     else:
         size_display = raw_size
+
     address_display = metadata.get('address', 'Paris, France')
     summary = f'{size_display} | {price_display} | {address_display}'
 
@@ -146,6 +153,7 @@ def build_page(listing_name: str, metadata: dict, image_paths: list[Path], templ
     image_caption = Path(image_rel_paths[0]).stem.replace('_', ' ')
     page_url = f'./{safe_filename(listing_name)}.html'
 
+    # Embedded payload for listing.js
     listing_data = {
         'name': listing_name,
         'title': formatted_name,
@@ -154,43 +162,38 @@ def build_page(listing_name: str, metadata: dict, image_paths: list[Path], templ
         'year': metadata.get('year', ''),
         'address': metadata.get('address', ''),
         'details': metadata.get('details', ''),
+        'details_html': details_html,  # Preserved HTML format for listing.js
         'images': image_rel_paths,
         'description': summary,
     }
 
     page_html = template
-    page_html = page_html.replace('<title>Резиденция — ОМЕГА Холдингс</title>', f'<title>{escape(page_title)}</title>')
-    page_html = page_html.replace(
-        'content="Преглед на луксозна резиденция от колекцията на ОМЕГА Холдингс."',
-        f'content="{escape(summary)}"'
-    )
-    page_html = page_html.replace(
-        'content="Резиденция — ОМЕГА Холдингс"',
-        f'content="{escape(page_title)}"'
-    )
-    page_html = page_html.replace('content="./listing.html"', f'content="{page_url}"')
-    page_html = page_html.replace('content="./img/hero.png"', f'content="{escape(primary_image)}"')
-    page_html = page_html.replace('content="Main perspective of Omega Holdings residence"', f'content="{escape(formatted_name)} — основно изображение на резиденцията"')
-    page_html = page_html.replace('content="Преглед на луксозна резиденция от колекцията на ОМЕГА Холдингс."', f'content="{escape(summary)}"')
-    page_html = page_html.replace('content="./img/hero.png"', f'content="{escape(primary_image)}"')
 
-    page_html = page_html.replace(
-        '<h2 id="listing-title">Зареждане на Резиденция...</h2>',
-        f'<h2 id="listing-title">{escape(formatted_name)}</h2>'
-    )
-    page_html = page_html.replace(
-        '<span class="eyebrow" id="listing-eyebrow">Имот ОМЕГА</span>',
-        '<span class="eyebrow" id="listing-eyebrow">Резиденция</span>'
-    )
-    page_html = page_html.replace('<td id="listing-price">—</td>', f'<td id="listing-price">{escape(price_display)}</td>')
-    page_html = page_html.replace('<td id="listing-size">—</td>', f'<td id="listing-size">{escape(size_display)}</td>')
-    page_html = page_html.replace('<td id="listing-year">—</td>', f'<td id="listing-year">{escape(year_display)}</td>')
-    page_html = page_html.replace('<td id="listing-address">—</td>', f'<td id="listing-address">{escape(address_display)}</td>')
-    page_html = page_html.replace('<div id="listing-details" class="details"></div>', f'<div id="listing-details" class="details">{details_html}</div>')
-    page_html = page_html.replace('<img id="carousel-image" src="" alt="Архитектурен изглед">', f'<img id="carousel-image" src="{escape(image_rel_paths[0])}" alt="{escape(formatted_name)}">')
-    page_html = page_html.replace('<div id="carousel-caption" class="carousel-caption"></div>', f'<div id="carousel-caption" class="carousel-caption">{escape(image_caption)}</div>')
-    page_html = page_html.replace('<div id="carousel-counter" class="carousel-counter">1 / 1</div>', f'<div id="carousel-counter" class="carousel-counter">1 / {len(image_rel_paths)}</div>')
+    # Metadata & Titles
+    page_html = re.sub(r'<title>.*?</title>', f'<title>{escape(page_title)}</title>', page_html)
+    page_html = re.sub(r'content="[^"]*?"\s+name="description"', f'content="{escape(summary)}" name="description"', page_html)
+    page_html = re.sub(r'property="og:title"\s+content="[^"]*?"', f'property="og:title" content="{escape(page_title)}"', page_html)
+    page_html = re.sub(r'property="og:image"\s+content="[^"]*?"', f'property="og:image" content="{escape(primary_image)}"', page_html)
 
+    # Dynamic element replacements via ID matching
+    page_html = replace_element_content(page_html, 'listing-title', escape(formatted_name))
+    page_html = replace_element_content(page_html, 'listing-eyebrow', 'Резиденция')
+    page_html = replace_element_content(page_html, 'listing-price', escape(price_display))
+    page_html = replace_element_content(page_html, 'listing-size', escape(size_display))
+    page_html = replace_element_content(page_html, 'listing-year', escape(year_display))
+    page_html = replace_element_content(page_html, 'listing-address', escape(address_display))
+    page_html = replace_element_content(page_html, 'listing-details', details_html)
+    page_html = replace_element_content(page_html, 'carousel-caption', escape(image_caption))
+    page_html = replace_element_content(page_html, 'carousel-counter', f'1 / {len(image_rel_paths)}')
+
+    # Carousel Main Image update
+    page_html = re.sub(
+        r'<img\s+id="carousel-image"\s+src="[^"]*"\s+alt="[^"]*"',
+        f'<img id="carousel-image" src="{escape(image_rel_paths[0])}" alt="{escape(formatted_name)}"',
+        page_html
+    )
+
+    # Inject static data payload
     json_block = json.dumps(listing_data, ensure_ascii=False, indent=2)
     listing_data_script = f'<script id="listing-data" type="application/json">\n{json_block}\n</script>\n  '
     page_html = page_html.replace('<script src="./js/listing.js"></script>', f'{listing_data_script}<script src="./js/listing.js"></script>')
