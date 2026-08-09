@@ -157,6 +157,10 @@ async function loadImages(name) {
   const imgEl = document.getElementById('carousel-image');
   const counterEl = document.getElementById('carousel-counter');
   const captionEl = document.getElementById('carousel-caption');
+  const fullscreenOverlay = document.getElementById('fullscreen-overlay');
+  const fullscreenImage = document.getElementById('fullscreen-image');
+  const fullscreenCaption = document.getElementById('fullscreen-caption');
+  const fullscreenClose = document.getElementById('fullscreen-close');
 
   const fallbackSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500"><rect width="100%" height="100%" fill="#f4efe6"/><rect x="30" y="30" width="740" height="440" fill="none" stroke="#c5a059" stroke-width="1"/><text x="50%" y="45%" dominant-baseline="middle" text-anchor="middle" fill="#1c1a17" font-family="Cinzel, serif" font-size="28" letter-spacing="2">MAISON HAUSSMANN</text><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="#9e7b39" font-family="Montserrat, sans-serif" font-size="14" letter-spacing="3">IMAGE ARCHIVE UNAVAILABLE</text></svg>`;
 
@@ -184,9 +188,51 @@ async function loadImages(name) {
     if (captionEl) {
       captionEl.textContent = getImageName(currentSrc);
     }
+    if (fullscreenImage) {
+      fullscreenImage.src = currentSrc;
+    }
+    if (fullscreenCaption) {
+      fullscreenCaption.textContent = getImageName(currentSrc);
+    }
     prevBtn.disabled = imgs.length <= 1;
     nextBtn.disabled = imgs.length <= 1;
   }
+
+  if (imgEl && fullscreenOverlay && fullscreenImage) {
+    imgEl.style.cursor = 'zoom-in';
+    imgEl.addEventListener('click', () => {
+      fullscreenImage.src = imgs[currentIndex];
+      if (fullscreenCaption) {
+        fullscreenCaption.textContent = getImageName(imgs[currentIndex]);
+      }
+      fullscreenOverlay.classList.add('active');
+      fullscreenOverlay.setAttribute('aria-hidden', 'false');
+    });
+  }
+
+  function closeFullscreen() {
+    if (!fullscreenOverlay) return;
+    fullscreenOverlay.classList.remove('active');
+    fullscreenOverlay.setAttribute('aria-hidden', 'true');
+  }
+
+  if (fullscreenClose) {
+    fullscreenClose.addEventListener('click', closeFullscreen);
+  }
+
+  if (fullscreenOverlay) {
+    fullscreenOverlay.addEventListener('click', (event) => {
+      if (event.target === fullscreenOverlay) {
+        closeFullscreen();
+      }
+    });
+  }
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && fullscreenOverlay?.classList.contains('active')) {
+      closeFullscreen();
+    }
+  });
 
   prevBtn.addEventListener('click', () => {
     currentIndex = (currentIndex - 1 + imgs.length) % imgs.length;

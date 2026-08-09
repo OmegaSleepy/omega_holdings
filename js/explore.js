@@ -40,8 +40,9 @@ function formatPrice(val) {
 }
 
 function makeCard(item) {
-  const div = document.createElement('div');
-  div.className = 'card';
+  const cardLink = document.createElement('a');
+  cardLink.className = 'card';
+  cardLink.href = `./listing.html?name=${encodeURIComponent(item.name)}`;
 
   const imgWrap = document.createElement('div');
   imgWrap.className = 'card-img-wrap';
@@ -58,7 +59,7 @@ function makeCard(item) {
   };
 
   imgWrap.appendChild(img);
-  div.appendChild(imgWrap);
+  cardLink.appendChild(imgWrap);
 
   const meta = document.createElement('div');
   meta.className = 'meta';
@@ -67,16 +68,14 @@ function makeCard(item) {
   const displayPrice = formatPrice(item.price);
 
   meta.innerHTML = `
-    <a href="./listing.html?name=${encodeURIComponent(item.name)}">
-      <h3>${formattedTitle}</h3>
-    </a>
+    <h3>${formattedTitle}</h3>
     <div class="card-details">${item.year} • ${item.size} m²</div>
     <div class="price">${displayPrice}</div>
     <div class="addr">${addr}</div>
   `;
 
-  div.appendChild(meta);
-  return div;
+  cardLink.appendChild(meta);
+  return cardLink;
 }
 
 function applyFilters(data){
