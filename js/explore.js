@@ -16,7 +16,7 @@ function splitCsvLine(line){
 }
 
 async function loadListings(){
-  const res = await fetch('listings.csv');
+  const res = await fetch('./listings.csv');
   const text = await res.text();
   const lines = text.trim().split('\n').slice(1).filter(Boolean);
   const listings = lines.map(l=>{
@@ -47,7 +47,7 @@ function makeCard(item) {
   imgWrap.className = 'card-img-wrap';
 
   const img = document.createElement('img');
-  img.src = `listings/${item.name}/pictures/main.png`;
+  img.src = `./listings/${item.name}/pictures/main.png`;
 
   // Luxury Fallback SVG String
   const fallbackSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="100%" height="100%" fill="#f4efe6"/><rect x="20" y="20" width="560" height="360" fill="none" stroke="#c5a059" stroke-width="1"/><text x="50%" y="45%" dominant-baseline="middle" text-anchor="middle" fill="#1c1a17" font-family="Cinzel, serif" font-size="22" letter-spacing="2">MAISON HAUSSMANN</text><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="#9e7b39" font-family="Montserrat, sans-serif" font-size="12" letter-spacing="3">ARCHITECTURAL RESIDENCE</text></svg>`;
@@ -67,7 +67,7 @@ function makeCard(item) {
   const displayPrice = formatPrice(item.price);
 
   meta.innerHTML = `
-    <a href="listing.html?name=${encodeURIComponent(item.name)}">
+    <a href="./listing.html?name=${encodeURIComponent(item.name)}">
       <h3>${formattedTitle}</h3>
     </a>
     <div class="card-details">${item.year} • ${item.size} m²</div>

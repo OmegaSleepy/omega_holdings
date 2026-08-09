@@ -24,7 +24,7 @@ function normalizeValue(value) {
 
 async function loadInfo(name) {
   try {
-    const infoRes = await fetch(`listings/${name}/information.md`);
+    const infoRes = await fetch(`./listings/${name}/information.md`);
     if (!infoRes.ok) throw new Error('Listing metadata not found');
     const infoText = await infoRes.text();
     return parseInfoMarkdown(infoText);
@@ -79,7 +79,7 @@ function checkImageExists(src) {
 }
 
 async function loadImages(name) {
-  const listingDir = `listings/${name}`;
+  const listingDir = `./listings/${name}`;
   const mappingUrl = `${listingDir}/pictures.txt`;
 
   try {
