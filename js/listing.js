@@ -22,6 +22,17 @@ function normalizeValue(value) {
   return trimmed;
 }
 
+function getEmbeddedListingData() {
+  const script = document.querySelector('#listing-data');
+  if (!script) return null;
+  try {
+    return JSON.parse(script.textContent || script.innerText);
+  } catch (err) {
+    console.warn('Embedded listing JSON parse failed', err);
+    return null;
+  }
+}
+
 async function loadInfo(name) {
   try {
     const infoRes = await fetch(`./listings/${name}/information.md`);
@@ -119,23 +130,68 @@ async function loadImages(name) {
 }
 
 (async () => {
-  const rawName = qparam('name');
+  const embedded = getEmbeddedListingData();
+  const rawName = embedded?.name || qparam('name');
   const name = sanitizeName(rawName);
   
   const contentEl = document.getElementById('listing-content');
   const errorEl = document.getElementById('listing-error');
 
-  if (!name) {
-    contentEl.style.display = 'none';
-    errorEl.style.display = 'block';
-    return;
+  let info = embedded;
+  if (!info) {
+    if (!name) {
+      contentEl.style.display = 'none';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    info = await loadInfo(name);
+    if (!info) {
+      contentEl.style.display = 'none';
+      errorEl.style.display = 'block';
+      return;
+    }
   }
 
-  const info = await loadInfo(name);
-  if (!info) {
-    contentEl.style.display = 'none';
-    errorEl.style.display = 'block';
-    return;
+  // Populate metadata fields
+  const formattedTitle = (info.title || info.name || name).replace(/_/g, ' ');
+  document.getElementById('listing-title').textContent = formattedTitle;
+  document.title = `${formattedTitle} — ОМЕГА Холдингс`;
+
+  const rawSize = info.size || info['size_m2'] || '—';
+  document.getElementById('listing-size').textContent = rawSize !== '—' && !rawSize.includes('m²') ? `${rawSize} m²` : rawSize;
+  document.getElementById('listing-price').textContent = formatPrice(info.price);
+  document.getElementById('listing-year').textContent = info.year || info.year_of_building || '—';
+  document.getElementById('listing-address').textContent = info.address || 'Paris, France';
+  document.getElementById('listing-details').textContent = info.details || 'Detailed description forthcoming for this private residence.';
+
+  function setMetaProperty(name, content) {
+    if (!content) return;
+    let element = document.querySelector(`meta[${name}]`);
+    if (!element) {
+      element = document.createElement('meta');
+      const [attr, key] = name.split('=');
+      element.setAttribute(attr, key.replace(/^"|"$/g, ''));
+      document.head.appendChild(element);
+    }
+    element.setAttribute('content', content);
+  }
+
+  const summaryText = info.details || `${formattedTitle} — луксозна резиденция с площ ${rawSize} m² и цена от ${formatPrice(info.price)}.`;
+  setMetaProperty('name="description"', summaryText);
+  setMetaProperty('property="og:title"', `${formattedTitle} — ОМЕГА Холдингс`);
+  setMetaProperty('name="twitter:title"', `${formattedTitle} — ОМЕГА Холдингс`);
+  setMetaProperty('property="og:description"', summaryText);
+  setMetaProperty('name="twitter:description"', summaryText);
+  setMetaProperty('property="og:url"', window.location.href);
+
+  // Image Carousel setup
+  const imgs = embedded?.images && embedded.images.length ? embedded.images : await loadImages(name);
+  if (imgs.length > 0) {
+    const imageUrl = imgs[0];
+    setMetaProperty('property="og:image"', imageUrl);
+    setMetaProperty('property="og:image:alt"', `${formattedTitle} — основно изображение на резиденцията`);
+    setMetaProperty('name="twitter:image"', imageUrl);
   }
 
   // Populate metadata fields

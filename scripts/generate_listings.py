@@ -1,0 +1,219 @@
+#!/usr/bin/env python3
+"""
+Generate static root-level listing pages from `listing.html` using each listing folder.
+"""
+
+import json
+import re
+from html import escape
+from pathlib import Path
+
+root = Path(__file__).resolve().parent.parent
+listings_dir = root / 'listings'
+template_path = root / 'listing.html'
+
+if not template_path.exists():
+    raise SystemExit('Missing listing template: listing.html')
+
+if not listings_dir.exists():
+    raise SystemExit('Missing listings directory')
+
+
+def normalize_value(value: str) -> str:
+    text = value.strip()
+    if (text.startswith('"') and text.endswith('"')) or (text.startswith("'") and text.endswith("'")):
+        text = text[1:-1].strip()
+    return text
+
+
+def parse_listing_metadata(contents: str) -> dict:
+    lines = contents.splitlines()
+    data = {}
+    details = []
+    if lines and lines[0].strip() == '---':
+        i = 1
+        while i < len(lines):
+            line = lines[i]
+            if line.strip() == '---':
+                i += 1
+                break
+            if ':' in line:
+                key, value = line.split(':', 1)
+                data[key.strip().lower()] = normalize_value(value)
+            i += 1
+        details = lines[i:]
+    else:
+        details = lines
+    data['details'] = '\n'.join(details).strip()
+    return data
+
+
+def natural_sort_key(value: str):
+    parts = re.split(r'(\d+)', value)
+    return [int(part) if part.isdigit() else part.lower() for part in parts]
+
+
+def find_images(listing_dir: Path) -> list[str]:
+    picture_file = listing_dir / 'pictures.txt'
+    if picture_file.exists():
+        raw = picture_file.read_text(encoding='utf-8')
+        entries = [line.strip() for line in raw.splitlines() if line.strip() and not line.strip().startswith('#')]
+        images = []
+        for entry in entries:
+            candidate = listing_dir / entry
+            if candidate.exists():
+                images.append(candidate)
+        if images:
+            return sorted(images, key=lambda p: natural_sort_key(str(p)))
+
+    pictures_dir = listing_dir / 'pictures'
+    if not pictures_dir.exists() or not pictures_dir.is_dir():
+        return []
+
+    images = [p for p in pictures_dir.rglob('*') if p.is_file() and p.suffix.lower() in {'.png', '.jpg', '.jpeg', '.webp', '.gif', '.avif', '.svg'}]
+    return sorted(images, key=lambda p: natural_sort_key(str(p.name)))
+
+
+def format_details_html(details: str) -> str:
+    if not details:
+        return '<p>Описание на резиденцията не е налично.</p>'
+
+    html_parts = []
+    paragraph_lines = []
+    list_items = []
+
+    def flush_paragraph():
+        nonlocal paragraph_lines
+        if paragraph_lines:
+            html_parts.append('<p>{}</p>'.format(escape(' '.join(paragraph_lines))))
+            paragraph_lines = []
+
+    def flush_list():
+        nonlocal list_items
+        if list_items:
+            items = ''.join(f'<li>{escape(item)}</li>' for item in list_items)
+            html_parts.append(f'<ul>{items}</ul>')
+            list_items = []
+
+    for line in details.splitlines():
+        stripped = line.strip()
+        if stripped.startswith('- '):
+            flush_paragraph()
+            list_items.append(stripped[2:].strip())
+        elif stripped == '':
+            flush_list()
+            flush_paragraph()
+        else:
+            paragraph_lines.append(stripped)
+
+    flush_list()
+    flush_paragraph()
+    return '\n'.join(html_parts)
+
+
+def safe_filename(name: str) -> str:
+    sanitized = re.sub(r'[^0-9A-Za-z_-]+', '_', name.strip())
+    sanitized = sanitized.strip('_')
+    return sanitized or 'listing'
+
+
+def build_page(listing_name: str, metadata: dict, image_paths: list[Path], template: str) -> str:
+    formatted_name = listing_name.replace('_', ' ')
+    page_title = f'{formatted_name} — ОМЕГА Холдингс'
+    summary = metadata.get('description') or metadata.get('details', '').split('\n')[0].strip() or f'{formatted_name} — луксозна резиденция от колекцията на ОМЕГА Холдингс.'
+    summary = summary[:180]
+
+    images = image_paths if image_paths else []
+    if images:
+        primary_image = './' + str(images[0].relative_to(root)).replace('\\', '/')
+    else:
+        primary_image = './img/hero.png'
+
+    image_rel_paths = [('./' + str(p.relative_to(root)).replace('\\', '/')) for p in images]
+    if not image_rel_paths:
+        image_rel_paths = [primary_image]
+
+    details_html = format_details_html(metadata.get('details', ''))
+    price_display = metadata.get('price', '—')
+    size_display = metadata.get('size', '—')
+    year_display = metadata.get('year', '—')
+    address_display = metadata.get('address', 'Paris, France')
+    image_caption = Path(image_rel_paths[0]).stem.replace('_', ' ')
+    page_url = f'./{safe_filename(listing_name)}.html'
+
+    listing_data = {
+        'name': listing_name,
+        'title': formatted_name,
+        'price': metadata.get('price', ''),
+        'size': metadata.get('size', ''),
+        'year': metadata.get('year', ''),
+        'address': metadata.get('address', ''),
+        'details': metadata.get('details', ''),
+        'images': image_rel_paths,
+        'description': summary,
+    }
+
+    page_html = template
+    page_html = page_html.replace('<title>Резиденция — ОМЕГА Холдингс</title>', f'<title>{escape(page_title)}</title>')
+    page_html = page_html.replace(
+        'content="Преглед на луксозна резиденция от колекцията на ОМЕГА Холдингс."',
+        f'content="{escape(summary)}"'
+    )
+    page_html = page_html.replace(
+        'content="Резиденция — ОМЕГА Холдингс"',
+        f'content="{escape(page_title)}"'
+    )
+    page_html = page_html.replace('content="./listing.html"', f'content="{page_url}"')
+    page_html = page_html.replace('content="./img/hero.png"', f'content="{escape(primary_image)}"')
+    page_html = page_html.replace('content="Main perspective of Omega Holdings residence"', f'content="{escape(formatted_name)} — основно изображение на резиденцията"')
+    page_html = page_html.replace('content="Преглед на луксозна резиденция от колекцията на ОМЕГА Холдингс."', f'content="{escape(summary)}"')
+    page_html = page_html.replace('content="./img/hero.png"', f'content="{escape(primary_image)}"')
+
+    page_html = page_html.replace(
+        '<h2 id="listing-title">Зареждане на Резиденция...</h2>',
+        f'<h2 id="listing-title">{escape(formatted_name)}</h2>'
+    )
+    page_html = page_html.replace(
+        '<span class="eyebrow" id="listing-eyebrow">Имот ОМЕГА</span>',
+        '<span class="eyebrow" id="listing-eyebrow">Резиденция</span>'
+    )
+    page_html = page_html.replace('<td id="listing-price">—</td>', f'<td id="listing-price">{escape(price_display)}</td>')
+    page_html = page_html.replace('<td id="listing-size">—</td>', f'<td id="listing-size">{escape(size_display)}</td>')
+    page_html = page_html.replace('<td id="listing-year">—</td>', f'<td id="listing-year">{escape(year_display)}</td>')
+    page_html = page_html.replace('<td id="listing-address">—</td>', f'<td id="listing-address">{escape(address_display)}</td>')
+    page_html = page_html.replace('<div id="listing-details" class="details"></div>', f'<div id="listing-details" class="details">{details_html}</div>')
+    page_html = page_html.replace('<img id="carousel-image" src="" alt="Архитектурен изглед">', f'<img id="carousel-image" src="{escape(image_rel_paths[0])}" alt="{escape(formatted_name)}">')
+    page_html = page_html.replace('<div id="carousel-caption" class="carousel-caption"></div>', f'<div id="carousel-caption" class="carousel-caption">{escape(image_caption)}</div>')
+    page_html = page_html.replace('<div id="carousel-counter" class="carousel-counter">1 / 1</div>', f'<div id="carousel-counter" class="carousel-counter">1 / {len(image_rel_paths)}</div>')
+
+    json_block = json.dumps(listing_data, ensure_ascii=False, indent=2)
+    listing_data_script = f'<script id="listing-data" type="application/json">\n{json_block}\n</script>\n  '
+    page_html = page_html.replace('<script src="./js/listing.js"></script>', f'{listing_data_script}<script src="./js/listing.js"></script>')
+
+    return page_html
+
+
+def main():
+    template = template_path.read_text(encoding='utf-8')
+
+    for listing_dir in sorted(listings_dir.iterdir()):
+        if not listing_dir.is_dir() or listing_dir.name.startswith('.'):
+            continue
+
+        info_file = listing_dir / 'information.md'
+        if not info_file.exists():
+            print(f'Skipping {listing_dir.name}: missing information.md')
+            continue
+
+        metadata = parse_listing_metadata(info_file.read_text(encoding='utf-8'))
+        images = find_images(listing_dir)
+        output_name = f'{safe_filename(listing_dir.name)}.html'
+        output_path = root / output_name
+
+        page_html = build_page(listing_dir.name, metadata, images, template)
+        output_path.write_text(page_html, encoding='utf-8')
+        print(f'Wrote {output_path.relative_to(root)}')
+
+
+if __name__ == '__main__':
+    main()

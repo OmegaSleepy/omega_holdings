@@ -39,10 +39,14 @@ function formatPrice(val) {
   return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(num);
 }
 
+function safeFileName(name) {
+  return name.replace(/[^a-zA-Z0-9_-]+/g, '_').replace(/^_+|_+$/g, '');
+}
+
 function makeCard(item) {
   const cardLink = document.createElement('a');
   cardLink.className = 'card';
-  cardLink.href = `./listing.html?name=${encodeURIComponent(item.name)}`;
+  cardLink.href = `./${safeFileName(item.name)}.html`;
 
   const imgWrap = document.createElement('div');
   imgWrap.className = 'card-img-wrap';
