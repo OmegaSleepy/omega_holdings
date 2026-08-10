@@ -79,36 +79,34 @@ def format_details_html(details: str) -> str:
         return '<p>Описание на резиденцията не е налично.</p>'
 
     html_parts = []
-    paragraph_lines = []
-    list_items = []
+    blocks = re.split(r'\n\s*\n', details.strip())
 
-    def flush_paragraph():
-        nonlocal paragraph_lines
-        if paragraph_lines:
-            html_parts.append(f'<p>{escape(" ".join(paragraph_lines))}</p>')
-            paragraph_lines = []
+    for block in blocks:
+        lines = [line.strip() for line in block.splitlines() if line.strip()]
+        if not lines:
+            continue
 
-    def flush_list():
-        nonlocal list_items
-        if list_items:
-            items = ''.join(f'<li>{escape(item)}</li>' for item in list_items)
-            html_parts.append(f'<ul>{items}</ul>')
-            list_items = []
+        # Handle bulleted lists
+        if all(line.startswith('- ') for line in lines):
+            items = ''.join(f'<li>{escape(line[2:].strip())}</li>' for line in lines)
+            html_parts.append(f'<ul class="details-list">{items}</ul>')
+            continue
 
-    for line in details.splitlines():
-        stripped = line.strip()
-        if stripped.startswith('- '):
-            flush_paragraph()
-            list_items.append(stripped[2:].strip())
-        elif stripped == '':
-            flush_list()
-            flush_paragraph()
-        else:
-            paragraph_lines.append(stripped)
+        # Handle isolated section headings
+        if len(lines) == 1 and lines[0].endswith(':'):
+            html_parts.append(f'<h4 class="details-section-title">{escape(lines[0])}</h4>')
+            continue
 
-    flush_list()
-    flush_paragraph()
-    return '\n'.join(html_parts)
+        # Paragraph text formatting
+        full_block_text = ' '.join(lines)
+        formatted_text = escape(full_block_text)
+
+        # Automatically bold leading titles ending in a colon (e.g. "Пакет „СТАНДАРТЕН“:")
+        formatted_text = re.sub(r'^([^:\n]+:)', r'<strong>\1</strong>', formatted_text)
+
+        html_parts.append(f'<p>{formatted_text}</p>')
+
+    return ''.join(html_parts)
 
 
 def safe_filename(name: str) -> str:
