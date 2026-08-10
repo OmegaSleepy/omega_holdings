@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Coffee Park 7 — ОМЕГА Холдингс</title>
+  <link rel="icon" type="image/x-icon" href="./favicon.ico">
+  <link rel="stylesheet" href="./css/style.css">
+  <meta name="description" content="Преглед на луксозна резиденция от колекцията на ОМЕГА Холдингс.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Coffee Park 7 — ОМЕГА Холдингс">
+  <meta property="og:description" content="Преглед на луксозна резиденция от колекцията на ОМЕГА Холдингс.">
+  <meta property="og:image" content="./listings/Coffee_Park_7/pictures/main.png">
+  <meta property="og:image:alt" content="Main perspective of Omega Holdings residence">
+  <meta property="og:site_name" content="ОМЕГА Холдингс">
+  <meta property="og:url" content="./listing.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Резиденция — ОМЕГА Холдингс">
+  <meta name="twitter:description" content="Преглед на луксозна резиденция от колекцията на ОМЕГА Холдингс.">
+  <meta name="twitter:image" content="./img/hero.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="top-bar">
+    <span>Публична Колекция</span>
+    <span class="location">Комуна на Равенството</span>
+  </div>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <span class="subtitle">ОСН. Равенство</span>
+        <h1>ОМЕГА Холдингс</h1>
+      </div>
+      <nav>
+        <a href="./index.html">Home</a>
+        <a href="./explore.html">Разгледай офертите</a>
+        <a href="./about.html">За Нас</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container listing-page">
+    <div class="navigation-bar">
+      <a id="back" class="back-link" href="./explore.html">← Обратно към Портфолиото</a>
+    </div>
+
+    <!-- Error State -->
+    <div id="listing-error" class="error-message" style="display:none;">
+      <div class="gold-crest">⚜</div>
+      <h2>Резиденцията не е намерена</h2>
+      <p>Запрашаният архитектурен профил не можа да бъде намерен в нашите архиви. Моля, върнете се към избора на портфолио.</p>
+      <a class="btn btn-primary" href="./explore.html">Разгледай Портфолиото</a>
+    </div>
+
+    <!-- Content Layout -->
+    <div id="listing-content" class="listing-layout">
+      
+      <header class="listing-header">
+        <span class="eyebrow" id="listing-eyebrow">Резиденция</span>
+        <h2 id="listing-title">Coffee Park 7</h2>
+        <div class="divider-ornament"><span>❖</span></div>
+      </header>
+
+      <!-- Carousel -->
+      <section id="carousel" class="carousel">
+        <button id="prev" class="carousel-btn" aria-label="Предишно изображение">‹</button>
+        <div class="carousel-image-wrap">
+          <img id="carousel-image" src="./listings/Coffee_Park_7/pictures/front_door.png" alt="Coffee Park 7">
+          <div id="carousel-caption" class="carousel-caption">front door</div>
+          <div id="carousel-counter" class="carousel-counter">1 / 5</div>
+        </div>
+        <button id="next" class="carousel-btn" aria-label="Следващо изображение">›</button>
+      </section>
+
+      <div id="fullscreen-overlay" class="fullscreen-overlay" aria-hidden="true">
+        <div class="fullscreen-content">
+          <button id="fullscreen-close" class="fullscreen-close" aria-label="Затвори пълноекранното изображение">×</button>
+          <img id="fullscreen-image" src="" alt="Пълноекранно изображение на резиденцията">
+          <div id="fullscreen-caption" class="fullscreen-caption"></div>
+        </div>
+      </div>
+
+      <!-- Specifications & Details Grid -->
+      <div class="listing-details-grid">
+        <aside class="specs-panel">
+          <h3 class="panel-title">Архитектурни Спецификации</h3>
+          <table class="info-table">
+            <tbody>
+              <tr>
+                <td><strong>Оценка</strong></td>
+                <td id="listing-price">5 $</td>
+              </tr>
+              <tr>
+                <td><strong>Площ</strong></td>
+                <td id="listing-size">104 m²</td>
+              </tr>
+              <tr>
+                <td><strong>Година на строежа</strong></td>
+                <td id="listing-year">2026</td>
+              </tr>
+              <tr>
+                <td><strong>Адрес</strong></td>
+                <td id="listing-address">ул. Паркова 7, ет. 1.ап. 1, Равенство</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="contact-section">
+            <h4 class="contact-title">За Контакти</h4>
+            <p class="contact-detail"><strong>Офис:</strong> Казанска 6, ет. 3</p>
+            <p class="contact-detail"><strong>Обслужващо лице:</strong> Мартин Слийпов</p>
+          </div>
+
+        </aside>
+
+        <article class="description-panel">
+          <h3 class="panel-title">Преглед на Резиденцията</h3>
+          <div id="listing-details" class="details"><p>Уютно студио в тих и добре свързан район „Парков“</p>
+<p>Компактен едностаен апартамент (студио), разположен на първия етаж в спокоен жилищен квартал. На партера на сградата се намира световноизвестното кафене „Кьошето“. Локацията е изключително удобна - в непосредствена близост до метростанция и на пешеходно разстояние от парк „Айфел“ и парк „3000“.</p>
+<p>Пакет „СТАНДАРТЕН“: Към покупката на имота е включен пакет „СТАНДАРТЕН“, който осигурява акционерски статус и временно разрешение за ползване на социалната инфраструктура в „Равенство“.</p>
+<p>Особености и изисквания:</p>
+<ul><li>Имотът се предлага с интериорно решение с предварително зададен задължителен тапет по стените.</li><li>Налице са ограничения относно подмяната на дограмата и подовата настилка (паркет).</li></ul></div>
+        </article>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p class="footer-title">ОМЕГА Холдингс</p>
+      <p class="copyright">© ОМЕГА Холдингс — Фиктивно Архитектурно Портфолио</p>
+    </div>
+  </footer>
+
+  <script id="listing-data" type="application/json">
+{
+  "name": "Coffee_Park_7",
+  "title": "Coffee Park 7",
+  "price": "5 $",
+  "size": "104",
+  "year": "2026",
+  "address": "ул. Паркова 7, ет. 1.ап. 1, Равенство",
+  "details": "Уютно студио в тих и добре свързан район „Парков“\n\nКомпактен едностаен апартамент (студио), разположен на първия етаж в спокоен жилищен квартал. На партера на сградата се намира световноизвестното кафене „Кьошето“. Локацията е изключително удобна - в непосредствена близост до метростанция и на пешеходно разстояние от парк „Айфел“ и парк „3000“.\n\nПакет „СТАНДАРТЕН“: Към покупката на имота е включен пакет „СТАНДАРТЕН“, който осигурява акционерски статус и временно разрешение за ползване на социалната инфраструктура в „Равенство“.\n\nОсобености и изисквания:\n\n- Имотът се предлага с интериорно решение с предварително зададен задължителен тапет по стените.    \n- Налице са ограничения относно подмяната на дограмата и подовата настилка (паркет).",
+  "details_html": "<p>Уютно студио в тих и добре свързан район „Парков“</p>\n<p>Компактен едностаен апартамент (студио), разположен на първия етаж в спокоен жилищен квартал. На партера на сградата се намира световноизвестното кафене „Кьошето“. Локацията е изключително удобна - в непосредствена близост до метростанция и на пешеходно разстояние от парк „Айфел“ и парк „3000“.</p>\n<p>Пакет „СТАНДАРТЕН“: Към покупката на имота е включен пакет „СТАНДАРТЕН“, който осигурява акционерски статус и временно разрешение за ползване на социалната инфраструктура в „Равенство“.</p>\n<p>Особености и изисквания:</p>\n<ul><li>Имотът се предлага с интериорно решение с предварително зададен задължителен тапет по стените.</li><li>Налице са ограничения относно подмяната на дограмата и подовата настилка (паркет).</li></ul>",
+  "images": [
+    "./listings/Coffee_Park_7/pictures/front_door.png",
+    "./listings/Coffee_Park_7/pictures/inward.png",
+    "./listings/Coffee_Park_7/pictures/main.png",
+    "./listings/Coffee_Park_7/pictures/outside.png",
+    "./listings/Coffee_Park_7/pictures/outward.png"
+  ],
+  "description": "104 m² | 5 $ | ул. Паркова 7, ет. 1.ап. 1, Равенство"
+}
+</script>
+  <script src="./js/listing.js"></script>
+</body>
+</html>
